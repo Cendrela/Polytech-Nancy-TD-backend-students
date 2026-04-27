@@ -58,4 +58,11 @@ public class TaskDao {
         storage.put(id, task);
         return true;
     }
+    public void deleteAll() {
+        storage.clear();
+    }
+
+    public int count() {
+        return storage.size();
+    }
 }

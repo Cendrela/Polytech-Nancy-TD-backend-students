@@ -99,6 +99,20 @@ public class Application {
             return;
         }
         //endregion
+        //region Manage DELETE /tasks
+        if ("DELETE".equals(method) && "/tasks".equals(path)) {
+            dao.deleteAll();
+            sendResponse(exchange, 204, null);
+            return;
+        }
+        //endregion
+
+        //region Manage GET /tasks/count
+        if ("GET".equals(method) && "/tasks/count".equals(path)) {
+            sendResponse(exchange, 200, String.valueOf(dao.count()));
+            return;
+        }
+        //endregion
         // Otherwise → 404
         sendResponse(exchange, 404, null);
     }

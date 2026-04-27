@@ -59,6 +59,27 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Task'
+        delete:
+            tags: [ tasks ]
+            summary: Supprimer toutes les tâches
+            operationId: deleteAllTasks
+            responses:
+                '204':
+                    description: Toutes les tâches supprimées
+
+    /tasks/count:
+        get:
+            tags: [ tasks ]
+            summary: Compter les tâches
+            operationId: countTasks
+            responses:
+                '200':
+                    description: Nombre total de tâches
+                    content:
+                        application/json:
+                            schema:
+                                type: integer
+                                example: 3
 
     /tasks/{id}:
         parameters:
