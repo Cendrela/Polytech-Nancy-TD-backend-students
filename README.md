@@ -10,7 +10,7 @@
 
 ---
 
-## ✅ Prérequis (matériel & logiciels)
+## ✅ PrérequisTest (matériel & logiciels)
 - Java **17+**
 - Maven **3.8+**
 - Un **compte** GitHub
