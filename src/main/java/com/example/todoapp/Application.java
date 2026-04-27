@@ -1,5 +1,6 @@
 package com.example.todoapp;
-
+import java.util.ArrayList;
+import java.util.List;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.slf4j.Logger;
@@ -63,7 +64,41 @@ public class Application {
             return;
         }
         //endregion
+        //region Manage GET /tasks
+        if ("GET".equals(method) && "/tasks".equals(path)) {
+            String query = exchange.getRequestURI().getQuery();
+            boolean todoOnly = query != null && query.contains("todo-only=true");
 
+            List<Task> tasks = todoOnly ? dao.findAllTodo() : dao.findAll();
+
+            if (tasks.isEmpty()) {
+                sendResponse(exchange, 204, null);
+            } else {
+                sendResponse(exchange, 200, JsonUtils.serialize(tasks));
+            }
+            return;
+        }
+        //endregion
+        //region Manage DELETE /tasks/{id}
+        Matcher mDelete = ID_PATH.matcher(path);
+        if ("DELETE".equals(method) && mDelete.matches()) {
+            int id = Integer.parseInt(mDelete.group(1));
+            boolean deleted = dao.deleteById(id);
+            sendResponse(exchange, deleted ? 204 : 404, null);
+            return;
+        }
+        //endregion
+
+        //region Manage PUT /tasks/{id}
+        Matcher mPut = ID_PATH.matcher(path);
+        if ("PUT".equals(method) && mPut.matches()) {
+            int id = Integer.parseInt(mPut.group(1));
+            Task input = JsonUtils.deserialize(new String(exchange.getRequestBody().readAllBytes(), UTF_8), Task.class);
+            boolean updated = dao.update(id, input);
+            sendResponse(exchange, updated ? 204 : 404, null);
+            return;
+        }
+        //endregion
         // Otherwise → 404
         sendResponse(exchange, 404, null);
     }

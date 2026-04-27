@@ -1,5 +1,6 @@
 package com.example.todoapp;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -34,5 +35,27 @@ public class TaskDao {
      */
     public Optional<Task> findById(int id) {
         return Optional.ofNullable(storage.get(id));
+    }
+    public List<Task> findAll() {
+        return new ArrayList<>(storage.values());
+    }
+
+    public List<Task> findAllTodo() {
+        List<Task> result = new ArrayList<>();
+        for (Task task : storage.values()) {
+            if (!task.done()) {
+                result.add(task);
+            }
+        }
+        return result;
+    }
+    public boolean deleteById(int id) {
+        return storage.remove(id) != null;
+    }
+
+    public boolean update(int id, Task task) {
+        if (!storage.containsKey(id)) return false;
+        storage.put(id, task);
+        return true;
     }
 }
