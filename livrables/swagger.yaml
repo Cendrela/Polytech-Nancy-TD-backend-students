@@ -1,155 +1,233 @@
 openapi: 3.0.3
 info:
-    title: TODO API
-    version: 1.0.0
-    description: >
-        API de gestion d'une TODO List.
+  title: TODO API
+  version: 1.0.0
+  description: >
+    API de gestion d'une TODO List.
 servers:
-    -   url: http://localhost:8080
-        description: Serveur local de développement
+  -   url: http://localhost:8080
+      description: Serveur local de développement
 
 tags:
-    -   name: tasks
-        description: Opérations sur les tâches
+  -   name: tasks
+      description: Opérations sur les tâches
 
 paths:
-    /tasks:
-        get:
-            tags: [ tasks ]
-            summary: Récupérer toutes les tâches
-            operationId: getAllTasks
-            parameters:
-                -   in: query
-                    name: todo-only
-                    required: false
-                    description: Filtrer uniquement les tâches à réaliser
-                    schema:
-                        type: boolean
-            responses:
-                '200':
-                    description: Tâches trouvées
-                    content:
-                        application/json:
-                            schema:
-                                type: array
-                                items:
-                                    $ref: '#/components/schemas/Task'
-                '204':
-                    description: Aucune tâche trouvée
-        post:
-            tags: [ tasks ]
-            summary: Créer une tâche
-            operationId: createTask
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Task'
-            responses:
-                '201':
-                    description: Tâche créée avec succès
-                    headers:
-                        Location:
-                            description: URL de la ressource créée
-                            schema:
-                                type: string
-                                example: /tasks/1
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Task'
-        delete:
-            tags: [ tasks ]
-            summary: Supprimer toutes les tâches
-            operationId: deleteAllTasks
-            responses:
-                '204':
-                    description: Toutes les tâches supprimées
+  /tasks:
+    get:
+      tags: [ tasks ]
+      summary: Récupérer toutes les tâches
+      operationId: getAllTasks
+      parameters:
+        -   in: query
+            name: todo-only
+            required: false
+            description: Filtrer uniquement les tâches non terminées (done = false)
+            schema:
+              type: boolean
+              default: false
+      responses:
+        '200':
+          description: Tâches trouvées
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskResponse'
+        '204':
+          description: Aucune tâche trouvée
 
-    /tasks/count:
-        get:
-            tags: [ tasks ]
-            summary: Compter les tâches
-            operationId: countTasks
-            responses:
-                '200':
-                    description: Nombre total de tâches
-                    content:
-                        application/json:
-                            schema:
-                                type: integer
-                                example: 3
+    post:
+      tags: [ tasks ]
+      summary: Créer une tâche
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTask'
+      responses:
+        '201':
+          description: Tâche créée avec succès
+          headers:
+            Location:
+              description: URL de la ressource créée
+              schema:
+                type: string
+                example: /tasks/1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '400':
+          description: Corps de la requête invalide
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
-    /tasks/{id}:
-        parameters:
-            -   in: path
-                name: id
-                required: true
-                description: Identifiant numérique de la tâche
-                schema:
-                    type: integer
-                    minimum: 1
-        get:
-            tags: [ tasks ]
-            summary: Récupérer une tâche
-            description: Récupérer une tâche par son identifiant
-            operationId: getTaskById
-            responses:
-                '200':
-                    description: Tâche trouvée avec succès
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Task'
-                '404':
-                    description: Tâche non trouvée
-        put:
-            tags: [ tasks ]
-            summary: Modifier une tâche
-            operationId: updateTask
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Task'
-            responses:
-                '204':
-                    description: Tâche modifiée avec succès
-                '404':
-                    description: Tâche non trouvée
-        delete:
-            tags: [ tasks ]
-            summary: Supprimer une tâche
-            operationId: deleteTask
-            responses:
-                '204':
-                    description: Tâche supprimée avec succès
-                '404':
-                    description: Tâche non trouvée
+    delete:
+      tags: [ tasks ]
+      summary: Supprimer toutes les tâches
+      operationId: deleteAllTasks
+      responses:
+        '204':
+          description: Toutes les tâches supprimées
+
+  /tasks/count:
+    get:
+      tags: [ tasks ]
+      summary: Compter les tâches
+      operationId: countTasks
+      responses:
+        '200':
+          description: Nombre total de tâches
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 3
+
+  /tasks/{id}:
+    parameters:
+      -   in: path
+          name: id
+          required: true
+          description: Identifiant numérique de la tâche
+          schema:
+            type: integer
+            minimum: 1
+
+    get:
+      tags: [ tasks ]
+      summary: Récupérer une tâche par son identifiant
+      operationId: getTaskById
+      responses:
+        '200':
+          description: Tâche trouvée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '404':
+          description: Tâche non trouvée
+
+    put:
+      tags: [ tasks ]
+      summary: Modifier une tâche
+      operationId: updateTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTask'
+      responses:
+        '204':
+          description: Tâche modifiée avec succès
+        '400':
+          description: Corps de la requête invalide
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Tâche non trouvée
+
+    delete:
+      tags: [ tasks ]
+      summary: Supprimer une tâche
+      operationId: deleteTask
+      responses:
+        '204':
+          description: Tâche supprimée avec succès
+        '404':
+          description: Tâche non trouvée
 
 components:
-    schemas:
-        Task:
-            type: object
-            description: Représentation d'une tâche
-            properties:
-                id:
-                    type: integer
-                    example: 1
-                title:
-                    type: string
-                    nullable: true
-                    example: Acheter du lait
-                description:
-                    type: string
-                    nullable: true
-                    example: 2L demi-écrémé
-                done:
-                    type: boolean
-                    nullable: true
-                    example: false
-            required:
-                - id
-                - title
+  schemas:
+
+    TaskResponse:
+      type: object
+      description: Représentation d'une tâche retournée par l'API
+      properties:
+        id:
+          type: integer
+          description: Identifiant auto-généré par SQLite
+          example: 1
+        title:
+          type: string
+          description: Titre de la tâche
+          example: Réviser DS de maths
+        description:
+          type: string
+          nullable: true
+          description: Description optionnelle de la tâche
+          example: Séries numériques et probabilités.
+        done:
+          type: boolean
+          description: Statut d'accomplissement de la tâche
+          example: false
+      required:
+        - id
+        - title
+        - done
+
+    CreateTask:
+      type: object
+      description: Corps de la requête pour créer une tâche (POST /tasks). L'id est auto-généré, done est toujours false à la création.
+      properties:
+        title:
+          type: string
+          description: Titre de la tâche (obligatoire, 50 caractères max)
+          maxLength: 50
+          example: Réviser DS de maths
+        description:
+          type: string
+          nullable: true
+          description: Description optionnelle (255 caractères max)
+          maxLength: 255
+          example: Séries numériques et probabilités.
+      required:
+        - title
+
+    UpdateTask:
+      type: object
+      description: Corps de la requête pour modifier une tâche (PUT /tasks/{id}).
+      properties:
+        title:
+          type: string
+          description: Titre de la tâche (obligatoire, 50 caractères max)
+          maxLength: 50
+          example: Réviser DS de maths
+        description:
+          type: string
+          nullable: true
+          description: Description optionnelle (255 caractères max)
+          maxLength: 255
+          example: Séries numériques et probabilités.
+        done:
+          type: boolean
+          description: Statut d'accomplissement de la tâche (obligatoire)
+          example: true
+      required:
+        - title
+        - done
+
+    Error:
+      type: object
+      description: Erreur de validation retournée en cas de requête invalide (HTTP 400)
+      properties:
+        field:
+          type: string
+          description: Nom du champ invalide
+          example: title
+        message:
+          type: string
+          description: Description lisible de l'erreur
+          example: title is required
+      required:
+        - field
+        - message
